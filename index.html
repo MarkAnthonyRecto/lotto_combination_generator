@@ -1,0 +1,139 @@
+﻿<!doctype html>
+<html class="no-js" lang="en">
+<head>
+<meta charset="utf-8">
+<meta http-equiv="x-ua-compatible" content="ie=edge">
+<title>Combination Generator</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="theme-color" content="#f39c12">
+
+<link rel="stylesheet" href="css/style.css" media="all"/>
+</head>
+<body>
+<div class="container-fluid co-va-middle fz-24">
+	<div class="auto">
+		<h3 class="cf-title">Lotto Combination Generator</h3>
+		<div class="co-box-content">
+			<div class="input-group">
+				<div class="col">
+					<div class="input-select">
+						<select id="lotto-options">
+							<option>6/42</option>
+							<option>6/45</option>
+							<option>6/49</option>
+							<option selected>6/58</option>
+						</select>
+					</div>
+				</div>
+				<div class="col col-btn">
+					<button>GENERATE</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script src="js/jquery.min.js"></script>
+<script>
+'use strict';
+var bp = {
+	init: function() {
+		bp.generator({
+			target: '.co-box-content',
+			input: '#lotto-options',
+		});
+	},
+	generator: function(opt) {
+		var _generator = {
+			target: '',
+			input: '',
+			value: 0,
+			numberselection: [],
+			box: 0,
+			selected: '',
+			copy: true,
+			init: function() {
+				_generator.target = opt.target;
+				_generator.input = document.querySelector(opt.input);
+
+				$('button', _generator.target).click(function() {
+					_generator.update();
+				});
+
+				$(_generator.input).on('change', function() {
+					_generator.update();
+				});
+			},
+			update: function() {
+				_generator.numberselection = [];
+				_generator.selected = '';
+				_generator.value = (_generator.input.options[_generator.input.selectedIndex].text).split('/');
+
+				$('.input-box', _generator.target).empty();
+
+				for (var i = 0; i < Math.floor(_generator.value[1]) ; i++ ){
+					_generator.numberselection.push(i+1);
+				}
+
+				for (var i = 0; i < Math.floor(_generator.value[0]) ; i++ ){
+					var _random = Math.floor(Math.random()*_generator.numberselection.length),
+					_picked = _generator.numberselection[_random];
+					_generator.numberselection.splice(_random, 1);
+
+					var _space = ', ';
+					if(i == Math.floor(_generator.value[0]) - 1) {
+						_space = '';
+					}
+
+					if(_generator.box == 0) {
+						_generator.createbox();
+					}
+
+					$(_generator.box).append(_picked + _space);
+				}
+			},
+			createbox: function() {
+				_generator.box = document.createElement('div');
+				$(_generator.box).addClass('input-box');
+
+				if(_generator.copy) {
+					_generator.copy = document.createElement('div');
+					$(_generator.copy).addClass('ib-copy').append('Copy');
+
+					_generator.copying();
+				}
+
+				$(_generator.target).append(_generator.box);
+				$(_generator.target).append(_generator.copy);
+			},
+			copying: function() {
+				$(_generator.copy).click(function() {
+					document.execCommand('copy');
+				});
+
+				document.addEventListener('copy', function(event) {
+					event.preventDefault();
+					if (event.clipboardData) {
+						event.clipboardData.setData("text/plain", _generator.box.textContent);
+						console.log(event.clipboardData.getData("text"))
+					}
+
+					var _copied = document.createElement('div');
+					$(_copied).addClass('ib-copied').append('<span>Copied!</span>').hide();
+
+					$(_generator.box).append(_copied);
+					$(_copied).fadeIn(function() {
+						$(_copied).fadeOut(function() {
+							$(_copied).remove();
+						});
+					});
+				});
+			}
+		}
+		_generator.init();
+	}
+}
+bp.init();
+</script>
+</body>
+</html>
